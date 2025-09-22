@@ -22,6 +22,20 @@ export const join = mutation({
   },
 });
 
+//部屋作成
+export const createRoom = mutation({
+  args: { roomId: v.string() },
+  handler: async (ctx, { roomId }) => {
+    // すでに存在する場合は作らない（競合回避）
+    const existing = await ctx.db.query("rooms")
+      .filter(q => q.eq(q.field("roomId"), roomId))
+      .first();
+    if (existing) return existing;
+
+    return await ctx.db.insert("rooms", { roomId, createdAt: Date.now() });
+  },
+});
+
 // ゲームの状態取得
 export const getGame = query({
   args: { roomId: v.string() },

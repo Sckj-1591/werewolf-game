@@ -15,11 +15,13 @@ export const join = mutation({
     if (!game) throw new Error("Game not found");
 
     // プレイヤーを追加
-    await ctx.db.insert("players", {
-      roomId,
-      name: playerName,
-    });
-  },
+await ctx.db.insert("players", {
+  roomId,
+  name: playerName,
+  joinedAt: Date.now(),
+});
+  }
+
 });
 
 //部屋作成
@@ -51,7 +53,9 @@ export const getGame = query({
       .filter((q) => q.eq(q.field("roomId"), roomId))
       .collect();
 
-    return { ...game, players: players.map((p) => p.name) };
+    // functions/game.ts
+return { ...game, players }; // players: { _id, name, joinedAt }[]
+
   },
 });
 

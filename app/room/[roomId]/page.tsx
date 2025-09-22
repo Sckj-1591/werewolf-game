@@ -4,6 +4,11 @@ import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import { useParams } from "next/navigation";
 
+type Player = {
+  _id: string;
+  name: string;
+};
+
 export default function RoomPage() {
   const { roomId } = useParams();
   const game = useQuery(api.functions.game.getGame, { roomId: roomId as string });
@@ -17,7 +22,7 @@ export default function RoomPage() {
       <h1>Room: {roomId}</h1>
       <h2>Players</h2>
       <ul>
-        {game.players.map((p: any) => (
+        {game.players.map((p: Player) => (
           <li key={p._id}>{p.name}</li>
         ))}
       </ul>

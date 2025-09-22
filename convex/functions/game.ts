@@ -1,4 +1,4 @@
-import { query, mutation } from "convex/_generated/server";
+import { query, mutation } from "../_generated/server";
 import { v } from "convex/values";
 
 // ゲームに参加

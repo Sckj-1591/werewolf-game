@@ -1,33 +1,35 @@
-import { query, mutation } from "../_generated/server";
+// convex/functions/game.ts
+import { mutation, query } from "../_generated/server";
 import { v } from "convex/values";
 
-// ゲームに参加
+// プレイヤーがルームに参加
 export const join = mutation({
   args: { roomId: v.string(), playerName: v.string() },
   handler: async (ctx, { roomId, playerName }) => {
+    // ゲームを取得
     const game = await ctx.db
       .query("games")
       .filter((q) => q.eq(q.field("roomId"), roomId))
       .first();
 
-    if (!game) {
-      // 新規ゲーム作成
-      await ctx.db.insert("games", { roomId, phase: "waiting" });
-    }
+    if (!game) throw new Error("Game not found");
 
-    await ctx.db.insert("players", { roomId, name: playerName });
+    // プレイヤーを追加
+    await ctx.db.insert("players", {
+      roomId,
+      name: playerName,
+    });
   },
 });
 
-// ゲーム状態取得
-export const getState = query({
+// ゲームの状態取得
+export const getGame = query({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     const game = await ctx.db
       .query("games")
       .filter((q) => q.eq(q.field("roomId"), roomId))
       .first();
-
     if (!game) return null;
 
     const players = await ctx.db
@@ -39,35 +41,33 @@ export const getState = query({
   },
 });
 
-// ゲーム開始
-export const start = mutation({
+// ゲーム開始（夜からスタート）
+export const startGame = mutation({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     const game = await ctx.db
       .query("games")
       .filter((q) => q.eq(q.field("roomId"), roomId))
       .first();
-
     if (!game) throw new Error("Game not found");
 
-    await ctx.db.patch(game._id, { phase: "night", day: 1 });
+    await ctx.db.patch(game._id, {
+      phase: "night",
+    });
   },
 });
 
-// フェーズ切り替え（夜⇄朝）
-export const nextPhase = mutation({
+// フェーズを切り替える（夜 ⇄ 朝）
+export const togglePhase = mutation({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     const game = await ctx.db
       .query("games")
       .filter((q) => q.eq(q.field("roomId"), roomId))
       .first();
-
     if (!game) throw new Error("Game not found");
 
     const nextPhase = game.phase === "night" ? "day" : "night";
-    const nextDay = nextPhase === "day" ? (game.day || 1) + 1 : game.day;
-
-    await ctx.db.patch(game._id, { phase: nextPhase, day: nextDay });
+    await ctx.db.patch(game._id, { phase: nextPhase });
   },
 });

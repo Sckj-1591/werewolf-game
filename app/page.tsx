@@ -1,15 +1,19 @@
 "use client";
 
 import { useState } from "react";
+import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
+import { useMutation } from "convex/react";
 
 export default function HomePage() {
   const [roomId, setRoomId] = useState("");
   const router = useRouter();
+  const createRoom = useMutation(api.functions.game.createRoom);
 
-  const enterRoom = () => {
+  const enterRoom = async () => {
     if (roomId.trim()) {
-      router.push(`/room/${roomId}`);
+      await createRoom({ roomId: roomId.trim() });
+      router.push(`/room/${roomId.trim()}`);
     }
   };
 

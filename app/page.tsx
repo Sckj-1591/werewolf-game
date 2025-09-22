@@ -8,11 +8,11 @@ import { useMutation } from "convex/react";
 export default function HomePage() {
   const [roomId, setRoomId] = useState("");
   const router = useRouter();
-  const createRoom = useMutation(api.functions.game.createRoom);
+  const createGame = useMutation(api.functions.game.createGame);
 
   const enterRoom = async () => {
     if (roomId.trim()) {
-      await createRoom({ roomId: roomId.trim() });
+      await createGame({ roomId: roomId.trim() });
       router.push(`/room/${roomId.trim()}`);
     }
   };

@@ -25,16 +25,25 @@ await ctx.db.insert("players", {
 });
 
 //部屋作成
-export const createRoom = mutation({
+export const createGame = mutation({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     // すでに存在する場合は作らない（競合回避）
-    const existing = await ctx.db.query("rooms")
+    const existing = await ctx.db.query("games")
       .filter(q => q.eq(q.field("roomId"), roomId))
       .first();
     if (existing) return existing;
 
-    return await ctx.db.insert("rooms", { roomId, createdAt: Date.now() });
+    // ゲームを初期化
+    const newGame = {
+      roomId,
+      players: [],
+      phase: null,
+      day: 0,
+      createdAt: Date.now(),
+    };
+
+    return await ctx.db.insert("games", newGame);
   },
 });
 

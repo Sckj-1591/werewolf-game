@@ -1,14 +1,7 @@
-"use client"; // これを最初に書くこと！React Hooks を使うために必須
-
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-
-import { ConvexReactClient, ConvexProvider } from "convex/react";
-import { api } from "../convex/_generated/api";
-
-// Convex クラウド URL は .env.local に NEXT_PUBLIC_CONVEX_URL として設定
-const convex = new ConvexReactClient(process.env.NEXT_PUBLIC_CONVEX_URL!);
+import ConvexClientProvider from "./ConvexClientProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,12 +26,10 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {/* ConvexProvider でラップ */}
-        <ConvexProvider client={convex} >
-          {children}
-        </ConvexProvider>
+        <ConvexClientProvider>{children}</ConvexClientProvider>
       </body>
     </html>
   );
 }
+
 

@@ -15,11 +15,11 @@ export const join = mutation({
     if (!game) throw new Error("Game not found");
 
     // プレイヤーを追加
-await ctx.db.insert("players", {
-  roomId,
-  name: playerName,
-  joinedAt: Date.now(),
-});
+    await ctx.db.insert("players", {
+      roomId,
+      name: playerName,
+      joinedAt: Date.now(),
+    });
   }
 
 });
@@ -63,7 +63,7 @@ export const getGame = query({
       .collect();
 
     // functions/game.ts
-return { ...game, players }; // players: { _id, name, joinedAt }[]
+    return { ...game, players }; // players: { _id, name, joinedAt }[]
 
   },
 });

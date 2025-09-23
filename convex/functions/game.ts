@@ -37,7 +37,6 @@ export const createGame = mutation({
     // ゲームを初期化
     const newGame = {
       roomId,
-      players: [],
       phase: null,
       day: 0,
       createdAt: Date.now(),

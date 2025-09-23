@@ -57,14 +57,8 @@ export const getGame = query({
       .first();
     if (!game) return null;
 
-    const players = await ctx.db
-      .query("players")
-      .filter((q) => q.eq(q.field("roomId"), roomId))
-      .collect();
-
     // functions/game.ts
-    return { ...game, players }; // players: { _id, name, joinedAt }[]
-
+    return { ...game}; // players: { _id, name, joinedAt }[]
   },
 });
 

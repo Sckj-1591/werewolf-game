@@ -25,3 +25,15 @@ export const send = mutation({
     });
   },
 });
+
+// 過去のメッセージ取得（履歴表示用）
+export const getMessages = query({
+  args: { roomId: v.string() },
+  handler: async (ctx, { roomId }) => {
+    return await ctx.db
+      .query("messages")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .order("asc")
+      .collect();
+  },
+});

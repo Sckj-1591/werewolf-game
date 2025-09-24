@@ -19,6 +19,8 @@ export const join = mutation({
       roomId,
       name: playerName,
       joinedAt: Date.now(),
+      alive: true,
+      role: null,
     });
   },
 });
@@ -77,6 +79,8 @@ export const startGame = mutation({
   },
 });
 
+type Phase = "day" | "vote" | "night" | null;
+
 // フェーズを切り替える（夜 ⇄ 朝）
 export const togglePhase = mutation({
   args: { roomId: v.string() },
@@ -87,7 +91,20 @@ export const togglePhase = mutation({
       .first();
     if (!game) throw new Error("Game not found");
 
-    const nextPhase = game.phase === "night" ? "day" : "night";
-    await ctx.db.patch(game._id, { phase: nextPhase });
+    const nextPhase = (phase: string | null): Phase => {
+      switch (phase) {
+        case "night":
+          return "day";
+        case "day":
+          return "vote";
+        case "vote":
+          return "night"; // 夜に戻る
+        case null:
+          return "night"; // ゲーム開始時 は夜から
+        default:
+          return null;
+      } // switch
+    }; // nextPhase
+    await ctx.db.patch(game._id, { phase: nextPhase(game.phase) });
   },
 });

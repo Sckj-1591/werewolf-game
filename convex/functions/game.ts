@@ -20,8 +20,7 @@ export const join = mutation({
       name: playerName,
       joinedAt: Date.now(),
     });
-  }
-
+  },
 });
 
 //部屋作成
@@ -29,8 +28,9 @@ export const createGame = mutation({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     // すでに存在する場合は作らない（競合回避）
-    const existing = await ctx.db.query("games")
-      .filter(q => q.eq(q.field("roomId"), roomId))
+    const existing = await ctx.db
+      .query("games")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
       .first();
     if (existing) return existing;
 
@@ -57,7 +57,7 @@ export const getGame = query({
     if (!game) return null;
 
     // functions/game.ts
-    return { ...game}; // players: { _id, name, joinedAt }[]
+    return { ...game }; // players: { _id, name, joinedAt }[]
   },
 });
 

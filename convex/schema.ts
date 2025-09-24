@@ -8,16 +8,17 @@ export default defineSchema({
     day: v.number(),
     createdAt: v.number(),
   }),
-　messages: defineTable({
-  roomId: v.string(),
-  author: v.string(),
-  text: v.string(),
-  createdAt: v.number(),
-}),
+  messages: defineTable({
+    roomId: v.string(),
+    author: v.string(),
+    text: v.string(),
+    createdAt: v.number(),
+  }),
   players: defineTable({
-  roomId: v.string(),
-  name: v.string(),
-  joinedAt: v.number(),
-})
+    roomId: v.string(),
+    name: v.string(),
+    joinedAt: v.number(),
+    alive: v.boolean(),
+    role: v.union(v.string(), v.null()),
+  }),
 });
-

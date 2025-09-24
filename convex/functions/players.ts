@@ -7,7 +7,7 @@ export const getPlayers = query({
   handler: async (ctx, { roomId }) => {
     return await ctx.db
       .query("players")
-      .filter(q => q.eq(q.field("roomId"), roomId))
+      .filter((q) => q.eq(q.field("roomId"), roomId))
       .collect();
   },
 });
@@ -20,6 +20,8 @@ export const addPlayer = mutation({
       roomId,
       name,
       joinedAt: Date.now(),
+      alive: true,
+      role: null,
     });
   },
 });

@@ -5,6 +5,8 @@ import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useMutation } from "convex/react";
 import { addPlayer } from "@/convex/functions/players";
+import ConvexClientProvider from "./ConvexClientProvider";
+import { SignInButton } from "@clerk/nextjs";
 
 export default function HomePage() {
   const [roomId, setRoomId] = useState("");
@@ -17,8 +19,9 @@ export default function HomePage() {
     if (roomId.trim()) {
       await createGame({ roomId: roomId.trim() });
       await addPlayer({
-         roomId: roomId.trim(),
-         name: name.trim() || "名無し" });
+        roomId: roomId.trim(),
+        name: name.trim() || "名無し",
+      });
       router.push(`/room/${roomId.trim()}`);
     }
   };
@@ -41,6 +44,9 @@ export default function HomePage() {
         style={{ marginRight: 8 }}
       />
       <button onClick={enterRoom}>入室</button>
+      <SignInButton mode="modal">
+        <button style={{ marginLeft: 8 }}>Sign In</button>
+      </SignInButton>
     </div>
   );
 }

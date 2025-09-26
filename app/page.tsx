@@ -23,54 +23,35 @@ export default function HomePage() {
   }
 
   if (!isAuthenticated) {
-    const enterRoom = async () => {
-      if (roomId.trim()) {
-        await createGame({ roomId: roomId.trim() });
-        await addPlayer({
-          roomId: roomId.trim(),
-          name: name.trim() || "名無し",
-        });
-        router.push(`/room/${roomId.trim()}`);
-      }
-    };
-
     return (
-      <div style={{ padding: 20 }}>
-        <h1>人狼チャットへようこそ</h1>
-        <input
-          type="number"
-          value={roomId}
-          onChange={(e) => setRoomId(e.target.value)}
-          placeholder="Room IDを入力"
-          style={{ marginRight: 8 }}
-        />
-        <input
-          type="text"
-          value={name}
-          onChange={(e) => setName(e.target.value)}
-          placeholder="あなたの名前を入力"
-          style={{ marginRight: 8 }}
-        />
-        <button onClick={enterRoom}>入室</button>
-        <h1 className="text-xl font-semibold">
-          ようこそ！{isAuthenticated ? user?.fullName : "ゲスト"}さん
-        </h1>
-        <div className="flex gap-4">
-          {!isAuthenticated ? (
-            <SignInButton mode="modal">
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                ログイン
-              </button>
-            </SignInButton>
-          ) : (
-            <SignOutButton>
-              <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
-                ログアウト
-              </button>
-            </SignOutButton>
-          )}
+      <div>
+        <div style={{ padding: 20 }}>
+          <h1 className="text-xl font-semibold">
+            ようこそ！{isAuthenticated ? user?.fullName : "ゲスト"}さん
+          </h1>
+          <div className="flex gap-4">
+            {!isAuthenticated ? (
+              <SignInButton mode="modal">
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  ログイン
+                </button>
+              </SignInButton>
+            ) : (
+              <SignOutButton>
+                <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+                  ログアウト
+                </button>
+              </SignOutButton>
+            )}
+          </div>
         </div>
       </div>
     );
   }
+
+  if (isAuthenticated) {
+    router.push("/logined");
+  }
+
+  return <div>Redirecting...</div>;
 }

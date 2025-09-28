@@ -1,5 +1,6 @@
 import { mutation } from "../_generated/server";
 import { v } from "convex/values";
+import { query } from "../_generated/server";
 
 //投票内容をテーブルに保存
 export const castVote = mutation({
@@ -38,7 +39,7 @@ export const castVote = mutation({
 });
 
 //特定の部屋の投票内容を取得
-export const getVotes = mutation({
+export const getVotes = query({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     return await ctx.db
@@ -49,7 +50,7 @@ export const getVotes = mutation({
 });
 
 //特定のプレイヤーに投票した人を取得
-export const getVotersForTarget = mutation({
+export const getVotersForTarget = query({
   args: { roomId: v.string(), targetId: v.id("players") },
   handler: async (ctx, { roomId, targetId }) => {
     return await ctx.db
@@ -65,7 +66,7 @@ export const getVotersForTarget = mutation({
 });
 
 //特定のプレイヤーが投票した内容を取得
-export const getVoteByVoter = mutation({
+export const getVoteByVoter = query({
   args: { roomId: v.string(), voterId: v.id("players") },
   handler: async (ctx, { roomId, voterId }) => {
     return await ctx.db
@@ -114,7 +115,7 @@ export const deleteVote = mutation({
 });
 
 //全ての投票内容を取得（デバッグ用）
-export const getAllVotes = mutation({
+export const getAllVotes = query({
   args: {},
   handler: async (ctx) => {
     return await ctx.db.query("votes").collect();
@@ -134,7 +135,7 @@ export const deleteAllVotes = mutation({
 });
 
 //投票数を集計
-export const tallyVotes = mutation({
+export const tallyVotes = query({
   args: { roomId: v.string() },
   handler: async (ctx, { roomId }) => {
     const votes = await ctx.db
@@ -154,7 +155,7 @@ export const tallyVotes = mutation({
 });
 
 //特定の部屋の特定の日の総投票数を取得
-export const getVoteCountByDay = mutation({
+export const getVoteCountByDay = query({
   args: { roomId: v.string(), day: v.number() },
   handler: async (ctx, { roomId, day }) => {
     const votes = await ctx.db

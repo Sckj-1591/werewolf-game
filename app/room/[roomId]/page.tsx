@@ -48,7 +48,7 @@ export default function RoomPage() {
             ))}
           </ul>
 
-          {players.length >= 4 && !game.phase && (
+          {players.length >= 1 && !game.phase && (
             <button onClick={() => startGame({ roomId: roomId as string })}>
               スタート
             </button>

@@ -2,7 +2,8 @@
 
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
-import React, { useState } from "react";
+import React, { use, useEffect, useState } from "react";
+import { useUser } from "@clerk/nextjs";
 
 type Player = {
   _id: string;
@@ -14,6 +15,46 @@ export default function VotePhase({ roomId }: { roomId: string }) {
   const game = useQuery(api.functions.game.getGame, { roomId });
   const players = useQuery(api.functions.players.getPlayers, { roomId });
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
+  const vote = useMutation(api.functions.vote.castVote);
+  const { user } = useUser();
+  const voter = players?.find((p) => p.name === user?.fullName);
+  const voteCount = useQuery(api.functions.vote.getVoteCountByDay, {
+    roomId,
+    day: game ? game.day : 0,
+  });
+  const alivePlayers = useQuery(api.functions.players.getAlivePlayers, {
+    roomId,
+  });
+
+  const handleVote = () => {
+    if (!selectedPlayer) return;
+
+    const target = players?.find((p) => p.name === selectedPlayer);
+    if (voter && target && game) {
+      vote({
+        roomId,
+        voterId: voter._id,
+        targetId: target._id,
+        day: game.day,
+      });
+      alert(`You voted for ${selectedPlayer}`);
+    }
+  };
+
+  useEffect(() => {
+    setSelectedPlayer("");
+  }, [game?.day]);
+
+  //部屋の全員の投票が終わったらフェーズを進める
+  useEffect(() => {
+    if (players && game && alivePlayers && voteCount !== undefined) {
+      if (players.length > 0 && alivePlayers.length === voteCount) {
+        togglePhase({ roomId });
+      }
+    }
+  }, [voteCount, players, game, alivePlayers, roomId, togglePhase]);
+
+  if (!voter) return <div>Loading user...</div>;
 
   if (!game || !players) return <div>Loading...</div>;
   if (!game.phase) return <div>ゲーム未開始</div>;
@@ -40,6 +81,9 @@ export default function VotePhase({ roomId }: { roomId: string }) {
 
         {selectedPlayer && <p>選択中: {selectedPlayer}</p>}
       </div>
+      <button disabled={!selectedPlayer} onClick={handleVote}>
+        投票する
+      </button>
     </div>
   );
 }

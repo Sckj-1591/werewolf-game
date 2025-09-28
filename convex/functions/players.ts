@@ -65,3 +65,40 @@ export const getAlivePlayers = query({
       .collect();
   },
 });
+
+// 死亡しているプレイヤーを取得
+export const getDeadPlayers = query({
+  args: { roomId: v.string() },
+  handler: async (ctx, { roomId }) => {
+    return await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .filter((q) => q.eq(q.field("alive"), false))
+      .collect();
+  },
+});
+
+// プレイヤーの役割ごとの一覧を取得
+export const getPlayersByRole = query({
+  args: { roomId: v.string(), role: v.string() },
+  handler: async (ctx, { roomId, role }) => {
+    return await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .filter((q) => q.eq(q.field("role"), role))
+      .collect();
+  },
+});
+
+// プレイヤーの名前で検索
+export const findPlayerByName = query({
+  args: { roomId: v.string(), name: v.string() },
+  handler: async (ctx, { roomId, name }) => {
+    return await ctx.db
+      .query("players")
+      .filter((q) =>
+        q.and(q.eq(q.field("roomId"), roomId), q.eq(q.field("name"), name))
+      )
+      .first();
+  },
+});

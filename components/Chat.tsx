@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { useQuery, useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
+import { useUser } from "@clerk/nextjs";
 
 type ChatProps = {
   roomId: string;
@@ -21,10 +22,17 @@ export default function Chat({ roomId, phase }: ChatProps) {
   const [text, setText] = useState("");
   const messages = useQuery(api.functions.messages.getMessages, { roomId });
   const sendMessage = useMutation(api.functions.messages.send);
+  const { user } = useUser();
+
+  if (!user) return <div>ログインしてください</div>;
 
   const handleSend = async () => {
     if (!text.trim()) return;
-    await sendMessage({ roomId, text: text.trim(), author: "自分" });
+    await sendMessage({
+      roomId,
+      text: text.trim(),
+      author: user?.fullName || "名無し",
+    });
     setText("");
   };
 

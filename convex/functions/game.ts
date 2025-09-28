@@ -79,7 +79,7 @@ export const startGame = mutation({
   },
 });
 
-type Phase = "day" | "vote" | "night" | null;
+type Phase = "day" | "vote" | "voteresult" | "night" | null;
 
 // フェーズを切り替える（夜 ⇄ 朝）
 export const togglePhase = mutation({
@@ -98,6 +98,8 @@ export const togglePhase = mutation({
         case "day":
           return "vote";
         case "vote":
+          return "voteresult";
+        case "voteresult":
           return "night"; // 夜に戻る
         case null:
           return "night"; // ゲーム開始時 は夜から

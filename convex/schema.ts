@@ -21,4 +21,11 @@ export default defineSchema({
     alive: v.boolean(),
     role: v.union(v.string(), v.null()),
   }),
+  votes: defineTable({
+    roomId: v.string(),
+    voterId: v.id("players"),
+    targetId: v.id("players"),
+    day: v.number(),
+    createdAt: v.number(),
+  }),
 });

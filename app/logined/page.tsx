@@ -1,11 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
 import { useRouter } from "next/navigation";
 import { useConvexAuth } from "convex/react";
+import { SignOutButton, useUser } from "@clerk/nextjs";
 
 export default function Home() {
   const { isAuthenticated } = useConvexAuth();
@@ -14,39 +15,48 @@ export default function Home() {
   const [roomId, setRoomId] = useState("");
   const [name, setName] = useState("");
   const addPlayer = useMutation(api.functions.players.addPlayer);
-  if (!isAuthenticated) {
-    router.push("/");
-  }
+  const { isSignedIn, user } = useUser();
+
+  useEffect(() => {
+    if (!isSignedIn) {
+      router.push("/");
+    }
+  }, [isSignedIn, router]);
 
   const enterRoom = async () => {
     if (roomId.trim()) {
       await createGame({ roomId: roomId.trim() });
       await addPlayer({
         roomId: roomId.trim(),
-        name: name.trim() || "名無し",
+        name: user?.fullName || "名無し",
       });
       router.push(`/room/${roomId.trim()}`);
     }
   };
 
-  return (
-    <div style={{ padding: 20 }}>
-      <h1>人狼チャットへようこそ</h1>
-      <input
-        type="number"
-        value={roomId}
-        onChange={(e) => setRoomId(e.target.value)}
-        placeholder="Room IDを入力"
-        style={{ marginRight: 8 }}
-      />
-      <input
-        type="text"
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="あなたの名前を入力"
-        style={{ marginRight: 8 }}
-      />
-      <button onClick={enterRoom}>入室</button>
-    </div>
-  );
+  if (isSignedIn) {
+    return (
+      <div style={{ padding: 20 }}>
+        <h1 className="text-xl font-semibold">
+          ようこそ！{isSignedIn ? user?.fullName : "ゲスト"}さん
+        </h1>
+        <h1>人狼チャットへようこそ</h1>
+        <input
+          type="number"
+          value={roomId}
+          onChange={(e) => setRoomId(e.target.value)}
+          placeholder="Room IDを入力"
+          style={{ marginRight: 8 }}
+        />
+        <button onClick={enterRoom}>入室</button>
+        <br />
+        <SignOutButton>
+          <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">
+            ログアウト
+          </button>
+        </SignOutButton>
+      </div>
+    );
+  }
+  return <div>Loading...</div>;
 }

@@ -6,6 +6,7 @@ import { useParams } from "next/navigation";
 import DayPhase from "@/components/DayPhase";
 import NightPhase from "@/components/NightPhase";
 import VotePhase from "@/components/VotePhase";
+import VoteResultPhase from "@/components/VoteResultPhase";
 
 type Player = {
   _id: string;
@@ -32,6 +33,8 @@ export default function RoomPage() {
       return <DayPhase roomId={roomId as string} />;
     case "vote":
       return <VotePhase roomId={roomId as string} />;
+    case "voteresult":
+      return <VoteResultPhase roomId={roomId as string} />;
     case "night":
       return <NightPhase roomId={roomId as string} />;
     default:

@@ -34,6 +34,5 @@ export default defineSchema({
     Team: v.string(),
     IsWolf: v.boolean(),
     CanTalkAtNight: v.boolean(),
-    CreatedAt: v.number(),
   }),
 });

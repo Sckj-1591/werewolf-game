@@ -28,4 +28,12 @@ export default defineSchema({
     day: v.number(),
     createdAt: v.number(),
   }),
+  roles: defineTable({
+    Name: v.string(),
+    Description: v.string(),
+    Team: v.string(),
+    IsWolf: v.boolean(),
+    CanTalkAtNight: v.boolean(),
+    CreatedAt: v.number(),
+  }),
 });

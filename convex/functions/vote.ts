@@ -6,32 +6,32 @@ import { query } from "../_generated/server";
 export const castVote = mutation({
   args: {
     roomId: v.string(),
-    voterId: v.id("players"),
-    targetId: v.id("players"),
+    voterName: v.string(),
+    targetName: v.string(),
     day: v.number(),
   },
-  handler: async (ctx, { roomId, voterId, targetId, day }) => {
+  handler: async (ctx, { roomId, voterName, targetName, day }) => {
     // 既に投票している場合は更新、していない場合は新規作成
     const existingVote = await ctx.db
       .query("votes")
       .filter((q) =>
         q.and(
           q.eq(q.field("roomId"), roomId),
-          q.eq(q.field("voterId"), voterId)
+          q.eq(q.field("voterName"), voterName)
         )
       )
       .first();
     if (existingVote) {
       return await ctx.db.patch(existingVote._id, {
-        targetId,
+        targetName,
         day,
         createdAt: Date.now(),
       });
     }
     return await ctx.db.insert("votes", {
       roomId,
-      voterId,
-      targetId,
+      voterName,
+      targetName,
       day,
       createdAt: Date.now(),
     });
@@ -51,14 +51,14 @@ export const getVotes = query({
 
 //特定のプレイヤーに投票した人を取得
 export const getVotersForTarget = query({
-  args: { roomId: v.string(), targetId: v.id("players") },
-  handler: async (ctx, { roomId, targetId }) => {
+  args: { roomId: v.string(), targetName: v.string() },
+  handler: async (ctx, { roomId, targetName }) => {
     return await ctx.db
       .query("votes")
       .filter((q) =>
         q.and(
           q.eq(q.field("roomId"), roomId),
-          q.eq(q.field("targetId"), targetId)
+          q.eq(q.field("targetName"), targetName)
         )
       )
       .collect();
@@ -67,14 +67,14 @@ export const getVotersForTarget = query({
 
 //特定のプレイヤーが投票した内容を取得
 export const getVoteByVoter = query({
-  args: { roomId: v.string(), voterId: v.id("players") },
-  handler: async (ctx, { roomId, voterId }) => {
+  args: { roomId: v.string(), voterName: v.string() },
+  handler: async (ctx, { roomId, voterName }) => {
     return await ctx.db
       .query("votes")
       .filter((q) =>
         q.and(
           q.eq(q.field("roomId"), roomId),
-          q.eq(q.field("voterId"), voterId)
+          q.eq(q.field("voterName"), voterName)
         )
       )
       .first();
@@ -98,11 +98,11 @@ export const clearVotes = mutation({
 
 //投票内容を更新
 export const updateVote = mutation({
-  args: { voteId: v.id("votes"), targetId: v.id("players") },
-  handler: async (ctx, { voteId, targetId }) => {
+  args: { voteId: v.id("votes"), targetName: v.string() },
+  handler: async (ctx, { voteId, targetName }) => {
     const vote = await ctx.db.get(voteId);
     if (!vote) throw new Error("Vote not found");
-    return await ctx.db.patch(voteId, { targetId, createdAt: Date.now() });
+    return await ctx.db.patch(voteId, { targetName, createdAt: Date.now() });
   },
 });
 
@@ -144,13 +144,13 @@ export const tallyVotes = query({
       .collect();
     const tally: Record<string, number> = {};
     for (const vote of votes) {
-      const targetId = vote.targetId.toString();
-      if (!tally[targetId]) {
-        tally[targetId] = 0;
+      const targetName = vote.targetName.toString();
+      if (!tally[targetName]) {
+        tally[targetName] = 0;
       }
-      tally[targetId]++;
+      tally[targetName]++;
     }
-    return tally; // { targetId: voteCount }
+    return tally; // { targetName: voteCount }
   },
 });
 
@@ -165,5 +165,39 @@ export const getVoteCountByDay = query({
       )
       .collect();
     return votes.length;
+  },
+});
+
+//特定の部屋の最も得票数の多いプレイヤーを配列で取得
+export const getTopVotedPlayers = query({
+  args: { roomId: v.string() },
+  handler: async (ctx, { roomId }) => {
+    const votes = await ctx.db
+      .query("votes")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .collect();
+    const tally: Record<string, number> = {};
+    for (const vote of votes) {
+      const targetName = vote.targetName.toString();
+      if (!tally[targetName]) {
+        tally[targetName] = 0;
+      }
+      tally[targetName]++;
+    }
+    const maxVotes = Math.max(...Object.values(tally), 0);
+    const topVotedPlayers = Object.entries(tally)
+      .filter(([_, count]) => count === maxVotes)
+      .map(([playerId, _]) => playerId);
+    return topVotedPlayers; // [playerId, playerId, ...]
+  },
+});
+
+//複数のプレイヤーの名前が入った配列を受け取り、ランダムに一人の名前を返す
+export const getRandomPlayerFromList = query({
+  args: { playerNames: v.array(v.string()) },
+  handler: async (ctx, { playerNames }) => {
+    if (playerNames.length === 0) return null;
+    const randomIndex = Math.floor(Math.random() * playerNames.length);
+    return playerNames[randomIndex];
   },
 });

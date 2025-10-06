@@ -28,9 +28,19 @@ export const addPlayer = mutation({
 
 // プレイヤー削除
 export const removePlayer = mutation({
-  args: { playerId: v.id("players") },
-  handler: async (ctx, { playerId }) => {
-    await ctx.db.delete(playerId);
+  args: { playerName: v.string(), roomId: v.string() },
+  handler: async (ctx, { playerName, roomId }) => {
+    const player = await ctx.db
+      .query("players")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("roomId"), roomId),
+          q.eq(q.field("name"), playerName)
+        )
+      )
+      .first();
+    if (!player) throw new Error("Player not found");
+    await ctx.db.delete(player._id);
   },
 });
 
@@ -41,6 +51,20 @@ export const updatePlayerStatus = mutation({
     const player = await ctx.db.get(playerId);
     if (!player) throw new Error("Player not found");
     return await ctx.db.patch(playerId, { alive });
+  },
+});
+
+//プレイヤーの生存状態を死亡に変更
+export const markPlayerAsDead = mutation({
+  args: { roomId: v.string(), playerName: v.string() },
+  handler: async (ctx, { roomId, playerName }) => {
+    const player = await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .filter((q) => q.eq(q.field("name"), playerName))
+      .first();
+    if (!player) throw new Error("Player not found");
+    return await ctx.db.patch(player._id, { alive: false });
   },
 });
 

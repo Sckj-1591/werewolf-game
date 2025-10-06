@@ -23,8 +23,8 @@ export default defineSchema({
   }),
   votes: defineTable({
     roomId: v.string(),
-    voterId: v.id("players"),
-    targetId: v.id("players"),
+    voterName: v.string(),
+    targetName: v.string(),
     day: v.number(),
     createdAt: v.number(),
   }),

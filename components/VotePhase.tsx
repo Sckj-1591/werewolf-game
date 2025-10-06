@@ -26,6 +26,10 @@ export default function VotePhase({ roomId }: { roomId: string }) {
     roomId,
   });
 
+  useEffect(() => {
+    setSelectedPlayer("");
+  }, [game?.day]);
+
   const handleVote = () => {
     if (!selectedPlayer) return;
 
@@ -33,17 +37,14 @@ export default function VotePhase({ roomId }: { roomId: string }) {
     if (voter && target && game) {
       vote({
         roomId,
-        voterId: voter._id,
-        targetId: target._id,
+        voterName: voter.name,
+        targetName: target.name,
         day: game.day,
       });
+      setSelectedPlayer("");
       alert(`You voted for ${selectedPlayer}`);
     }
   };
-
-  useEffect(() => {
-    setSelectedPlayer("");
-  }, [game?.day]);
 
   //部屋の全員の投票が終わったらフェーズを進める
   useEffect(() => {
@@ -72,16 +73,21 @@ export default function VotePhase({ roomId }: { roomId: string }) {
           onChange={(e) => setSelectedPlayer(e.target.value)}
         >
           <option value="">選択してください</option>
-          {players.map((p: Player) => (
-            <option key={p._id} value={p.name}>
-              {p.name}
-            </option>
-          ))}
+          {alivePlayers &&
+            alivePlayers.map((p: Player) => (
+              <option key={p._id} value={p.name}>
+                {p.name}
+              </option>
+            ))}
         </select>
 
         {selectedPlayer && <p>選択中: {selectedPlayer}</p>}
       </div>
-      <button disabled={!selectedPlayer} onClick={handleVote}>
+      <button
+        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+        disabled={!selectedPlayer}
+        onClick={handleVote}
+      >
         投票する
       </button>
     </div>

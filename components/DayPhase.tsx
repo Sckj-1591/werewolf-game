@@ -5,12 +5,20 @@ import { useMutation } from "convex/react";
 import { api } from "@/convex/_generated/api";
 import React from "react";
 import { useRouter } from "next/navigation";
+import { useUser } from "@clerk/nextjs";
 
 export default function DayPhase({ roomId }: { roomId: string }) {
   const togglePhase = useMutation(api.functions.game.togglePhase);
   const game = useQuery(api.functions.game.getGame, { roomId });
   const router = useRouter();
+  const user = useUser();
+  const removePlayer = useMutation(api.functions.players.removePlayer);
   const exitGame = () => {
+    if (!user.user?.fullName) {
+      alert("ユーザー情報が取得できません。");
+      return;
+    }
+    removePlayer({ roomId, playerName: user.user.fullName });
     router.push("/logined");
   };
   if (!game) return <div>Loading...</div>;

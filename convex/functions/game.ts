@@ -100,13 +100,21 @@ export const togglePhase = mutation({
         case "vote":
           return "voteresult";
         case "voteresult":
-          return "night"; // 夜に戻る
+          return "night"; // 日付更新は外でやる
         case null:
-          return "night"; // ゲーム開始時 は夜から
+          return "night";
         default:
           return null;
-      } // switch
-    }; // nextPhase
-    await ctx.db.patch(game._id, { phase: nextPhase(game.phase) });
+      }
+    };
+
+    const newPhase = nextPhase(game.phase);
+
+    // voteresult → night に切り替わるときだけ日付を進める
+    if (game.phase === "voteresult" && game.day !== undefined) {
+      await ctx.db.patch(game._id, { day: game.day + 1 });
+    }
+
+    await ctx.db.patch(game._id, { phase: newPhase });
   },
 });

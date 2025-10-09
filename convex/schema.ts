@@ -35,4 +35,9 @@ export default defineSchema({
     IsWolf: v.boolean(),
     CanTalkAtNight: v.boolean(),
   }),
+  attack: defineTable({
+    roomId: v.string(),
+    targetName: v.string(),
+    defencedName: v.union(v.string(), v.null()),
+  }),
 });

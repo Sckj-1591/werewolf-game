@@ -79,7 +79,7 @@ export const startGame = mutation({
   },
 });
 
-type Phase = "day" | "vote" | "voteresult" | "night" | null;
+type Phase = "morning" | "day" | "vote" | "voteresult" | "night" | null;
 
 // フェーズを切り替える（夜 ⇄ 朝）
 export const togglePhase = mutation({
@@ -94,6 +94,8 @@ export const togglePhase = mutation({
     const nextPhase = (phase: string | null): Phase => {
       switch (phase) {
         case "night":
+          return "morning";
+        case "morning":
           return "day";
         case "day":
           return "vote";

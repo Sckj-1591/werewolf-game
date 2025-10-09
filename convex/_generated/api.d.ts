@@ -16,6 +16,7 @@ import type {
 import type * as functions_game from "../functions/game.js";
 import type * as functions_messages from "../functions/messages.js";
 import type * as functions_players from "../functions/players.js";
+import type * as functions_role from "../functions/role.js";
 import type * as functions_vote from "../functions/vote.js";
 
 /**
@@ -30,6 +31,7 @@ declare const fullApi: ApiFromModules<{
   "functions/game": typeof functions_game;
   "functions/messages": typeof functions_messages;
   "functions/players": typeof functions_players;
+  "functions/role": typeof functions_role;
   "functions/vote": typeof functions_vote;
 }>;
 export declare const api: FilterApi<

@@ -78,6 +78,20 @@ export const updatePlayerRole = mutation({
   },
 });
 
+//　プレイヤーの役割を取得
+export const getPlayerRole = query({
+  args: { roomId: v.string(), playerName: v.string() },
+  handler: async (ctx, { roomId, playerName }) => {
+    const player = await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .filter((q) => q.eq(q.field("name"), playerName))
+      .first();
+    if (!player) return null;
+    return player.role;
+  },
+});
+
 // 生存しているプレイヤーを取得
 export const getAlivePlayers = query({
   args: { roomId: v.string() },

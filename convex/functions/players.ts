@@ -22,6 +22,7 @@ export const addPlayer = mutation({
       joinedAt: Date.now(),
       alive: true,
       role: null,
+      isCompleted: false,
     });
   },
 });
@@ -138,5 +139,33 @@ export const findPlayerByName = query({
         q.and(q.eq(q.field("roomId"), roomId), q.eq(q.field("name"), name))
       )
       .first();
+  },
+});
+
+// プレイヤーの行動完了状態を更新
+export const updatePlayerMoveComplete = mutation({
+  args: { playerId: v.id("players"), isCompleted: v.boolean() },
+  handler: async (ctx, { playerId, isCompleted }) => {
+    const player = await ctx.db.get(playerId);
+    if (!player) throw new Error("Player not found");
+    return await ctx.db.patch(playerId, { isCompleted });
+  },
+});
+
+// プレイヤーの行動完了状態を取得
+export const isPlayerMoveCompleted = query({
+  args: { roomId: v.string(), playerName: v.string() },
+  handler: async (ctx, { roomId, playerName }) => {
+    const player = await ctx.db
+      .query("players")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("roomId"), roomId),
+          q.eq(q.field("name"), playerName)
+        )
+      )
+      .first();
+    if (!player) throw new Error("Player not found");
+    return player.isCompleted;
   },
 });

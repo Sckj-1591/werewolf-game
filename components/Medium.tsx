@@ -11,6 +11,10 @@ export default function Diviner({ roomId }: { roomId: string }) {
   const togglePhase = useMutation(api.functions.game.togglePhase);
   const game = useQuery(api.functions.game.getGame, { roomId });
   const user = useUser();
+  const currentPlayer = useQuery(api.functions.players.findPlayerByName, {
+    roomId,
+    name: user.user?.fullName || "",
+  });
   const players = useQuery(api.functions.players.getPlayers, { roomId });
   const alivePlayers = useQuery(api.functions.players.getAlivePlayers, {
     roomId,
@@ -18,6 +22,12 @@ export default function Diviner({ roomId }: { roomId: string }) {
   const deadPlayers = useQuery(api.functions.players.getDeadPlayers, {
     roomId,
   });
+  const updatePlayerMoveComplete = useMutation(
+    api.functions.players.updatePlayerMoveComplete
+  );
+  const checkAllCompleted = useMutation(
+    api.functions.game.checkAllCompletedAndAdvancePhase
+  );
 
   // プルダウン式で占うプレイヤーを選択
   const [selectedPlayer, setSelectedPlayer] = React.useState<string>("");
@@ -39,10 +49,27 @@ export default function Diviner({ roomId }: { roomId: string }) {
       } else {
         alert(`${selectedPlayer}さんは人間です`);
       }
-      setHasDivined(true);
+      await setHasDivined(true);
     } catch (err) {
       console.error(err);
       alert("占いに失敗しました");
+    }
+    if (currentPlayer && currentPlayer._id) {
+      await updatePlayerMoveComplete({
+        playerId: currentPlayer._id,
+        isCompleted: true,
+      });
+    }
+    //行動完了チェック
+    if (players && alivePlayers && currentPlayer && game) {
+      const alivePlayerNames = alivePlayers.map((p) => p.name);
+      const completedPlayers = players.filter(
+        (p) => p.isCompleted && alivePlayerNames.includes(p.name)
+      );
+      if (completedPlayers.length === alivePlayers.length) {
+        // 全員が行動完了している場合、フェーズを進める
+        await togglePhase({ roomId });
+      }
     }
   };
 
@@ -52,31 +79,64 @@ export default function Diviner({ roomId }: { roomId: string }) {
   if (!alivePlayers) return <div>Loading alive players...</div>;
   if (!deadPlayers) return <div>Loading dead players...</div>;
 
+  if (deadPlayers.length === 0) {
+    return (
+      <div>
+        <h2>霊媒師のアクション</h2>
+        <p>まだ死亡者がいないため、霊媒できません。</p>
+        {!currentPlayer?.isCompleted ? (
+          <button
+            onClick={async () => {
+              if (!currentPlayer || !game) return;
+              await updatePlayerMoveComplete({
+                playerId: currentPlayer._id,
+                isCompleted: true,
+              });
+              await checkAllCompleted({
+                roomId,
+              });
+            }}
+          >
+            アクション完了
+          </button>
+        ) : (
+          <p>あなたは行動完了しています。</p>
+        )}
+      </div>
+    );
+  }
+
   return (
     <div>
       <h2>霊媒師のアクション</h2>
-      <p>霊媒するプレイヤーを選択してください。</p>
-      <select
-        value={selectedPlayer}
-        onChange={(e) => setSelectedPlayer(e.target.value)}
-        disabled={hasDivined}
-      >
-        <option value="">-- プレイヤーを選択 --</option>
-        {deadPlayers?.map((p) => (
-          <option key={p._id} value={p.name}>
-            {p.name}
-          </option>
-        ))}
-      </select>
-      <button
-        onClick={() => {
-          handleDivine();
-        }}
-        disabled={!selectedPlayer || hasDivined}
-      >
-        霊媒
-      </button>
-      {hasDivined && <p>霊媒を行いました。</p>}
+      {!currentPlayer?.isCompleted ? (
+        <div>
+          <p>霊媒するプレイヤーを選択してください。</p>
+          <select
+            value={selectedPlayer}
+            onChange={(e) => setSelectedPlayer(e.target.value)}
+            disabled={hasDivined}
+          >
+            <option value="">-- プレイヤーを選択 --</option>
+            {deadPlayers?.map((p) => (
+              <option key={p._id} value={p.name}>
+                {p.name}
+              </option>
+            ))}
+          </select>
+          <button
+            onClick={async () => {
+              handleDivine();
+              checkAllCompleted({ roomId });
+            }}
+            disabled={!selectedPlayer || hasDivined}
+          >
+            霊媒
+          </button>
+        </div>
+      ) : (
+        <div>{hasDivined && <p>霊媒を行いました。</p>}</div>
+      )}
     </div>
   );
 }

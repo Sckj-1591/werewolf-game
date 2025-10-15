@@ -7,12 +7,15 @@ export default defineSchema({
     phase: v.union(v.string(), v.null()),
     day: v.number(),
     createdAt: v.number(),
+    executedName: v.union(v.string(), v.null()),
   }),
   messages: defineTable({
     roomId: v.string(),
     author: v.string(),
     text: v.string(),
     createdAt: v.number(),
+    isWolfChat: v.boolean(),
+    isDead: v.boolean(),
   }),
   players: defineTable({
     roomId: v.string(),
@@ -20,6 +23,7 @@ export default defineSchema({
     joinedAt: v.number(),
     alive: v.boolean(),
     role: v.union(v.string(), v.null()),
+    isCompleted: v.boolean(),
   }),
   votes: defineTable({
     roomId: v.string(),

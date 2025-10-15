@@ -17,6 +17,10 @@ export default function VotePhase({ roomId }: { roomId: string }) {
   const [selectedPlayer, setSelectedPlayer] = useState<string>("");
   const vote = useMutation(api.functions.vote.castVote);
   const { user } = useUser();
+  const currentPlayer = useQuery(api.functions.players.findPlayerByName, {
+    roomId,
+    name: user?.fullName || "",
+  });
   const voter = players?.find((p) => p.name === user?.fullName);
   const voteCount = useQuery(api.functions.vote.getVoteCountByDay, {
     roomId,
@@ -25,14 +29,19 @@ export default function VotePhase({ roomId }: { roomId: string }) {
   const alivePlayers = useQuery(api.functions.players.getAlivePlayers, {
     roomId,
   });
+  const togglePhaseMutation = useMutation(api.functions.game.togglePhase);
+  const updatePlayerMoveComplete = useMutation(
+    api.functions.players.updatePlayerMoveComplete
+  );
+  const checkAllCompleted = useMutation(
+    api.functions.game.checkAllCompletedAndAdvancePhase
+  );
 
   useEffect(() => {
     setSelectedPlayer("");
   }, [game?.day]);
 
   const handleVote = () => {
-    if (!selectedPlayer) return;
-
     const target = players?.find((p) => p.name === selectedPlayer);
     if (voter && target && game) {
       vote({
@@ -43,52 +52,62 @@ export default function VotePhase({ roomId }: { roomId: string }) {
       });
       setSelectedPlayer("");
       alert(`You voted for ${selectedPlayer}`);
-    }
-  };
-
-  //部屋の全員の投票が終わったらフェーズを進める
-  useEffect(() => {
-    if (players && game && alivePlayers && voteCount !== undefined) {
-      if (players.length > 0 && alivePlayers.length === voteCount) {
-        togglePhase({ roomId });
+      if (currentPlayer && currentPlayer._id) {
+        updatePlayerMoveComplete({
+          playerId: currentPlayer._id,
+          isCompleted: true,
+        });
       }
     }
-  }, [voteCount, players, game, alivePlayers, roomId, togglePhase]);
+  };
 
   if (!voter) return <div>Loading user...</div>;
 
   if (!game || !players) return <div>Loading...</div>;
   if (!game.phase) return <div>ゲーム未開始</div>;
 
+  if (currentPlayer && !currentPlayer.alive) {
+    return <div>あなたは死亡しています。投票できません。</div>;
+  }
+
   return (
     <div>
       <h1>投票だよ</h1>
       <button onClick={() => togglePhase({ roomId })}>フェーズ切替</button>
+      {!currentPlayer?.isCompleted ? (
+        <div>
+          <label htmlFor="player-select">プレイヤーを選択: </label>
+          <select
+            id="player-select"
+            value={selectedPlayer}
+            onChange={(e) => setSelectedPlayer(e.target.value)}
+          >
+            <option value="">選択してください</option>
+            {alivePlayers &&
+              alivePlayers.map((p: Player) => (
+                <option key={p._id} value={p.name}>
+                  {p.name}
+                </option>
+              ))}
+          </select>
 
-      <div>
-        <label htmlFor="player-select">プレイヤーを選択: </label>
-        <select
-          id="player-select"
-          value={selectedPlayer}
-          onChange={(e) => setSelectedPlayer(e.target.value)}
-        >
-          <option value="">選択してください</option>
-          {alivePlayers &&
-            alivePlayers.map((p: Player) => (
-              <option key={p._id} value={p.name}>
-                {p.name}
-              </option>
-            ))}
-        </select>
-
-        {selectedPlayer && <p>選択中: {selectedPlayer}</p>}
-      </div>
-      <button
-        className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
-        disabled={!selectedPlayer}
-        onClick={handleVote}
-      >
-        投票する
+          {selectedPlayer && <p>選択中: {selectedPlayer}</p>}
+          <button
+            className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+            disabled={!selectedPlayer}
+            onClick={async () => {
+              await handleVote();
+              await checkAllCompleted({ roomId });
+            }}
+          >
+            投票する
+          </button>
+        </div>
+      ) : (
+        <div> {<p>あなたは行動完了しています。</p>}</div>
+      )}
+      <button onClick={() => togglePhaseMutation({ roomId })}>
+        フェーズ切替
       </button>
     </div>
   );

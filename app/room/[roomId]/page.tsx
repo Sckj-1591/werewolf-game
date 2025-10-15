@@ -8,7 +8,11 @@ import NightPhase from "@/components/NightPhase";
 import VotePhase from "@/components/VotePhase";
 import VoteResultPhase from "@/components/VoteResultPhase";
 import React from "react";
-import MorningPhase from "@/components/DayPhase";
+import MorningPhase from "@/components/MorningPhase";
+import CheckVictory from "@/components/CheckVictory";
+import WolfWin from "@/components/WolfWin";
+import VillagersWin from "@/components/VillagersWin";
+import { useUser } from "@clerk/nextjs";
 
 type Player = {
   _id: string;
@@ -28,6 +32,19 @@ export default function RoomPage() {
   const roles = useQuery(api.functions.role.getRoles, {});
   const assignRoles = useMutation(api.functions.role.assignRoles);
   const [assigned, setAssigned] = React.useState(false);
+  const user = useUser();
+  const currentPlayer = useQuery(api.functions.players.findPlayerByName, {
+    roomId: roomId as string,
+    name: user.user?.fullName || "",
+  });
+  const current = currentPlayer ? currentPlayer.role : "";
+
+  const updatePlayerMoveComplete = useMutation(
+    api.functions.players.updatePlayerMoveComplete
+  );
+  const checkAllCompleted = useMutation(
+    api.functions.game.checkAllCompletedAndAdvancePhase
+  );
 
   const handleRoles = async ({
     roomId,
@@ -50,7 +67,7 @@ export default function RoomPage() {
   if (!players) return <div>Loading players...</div>;
 
   switch (game.phase) {
-    case "morning"
+    case "morning":
       return <MorningPhase roomId={roomId as string} />;
     case "day":
       return <DayPhase roomId={roomId as string} />;
@@ -60,7 +77,15 @@ export default function RoomPage() {
       return <VoteResultPhase roomId={roomId as string} />;
     case "night":
       return <NightPhase roomId={roomId as string} />;
-    default:
+    case "checkvictoryMorning":
+      return <CheckVictory roomId={roomId as string} />;
+    case "checkvictoryNight":
+      return <CheckVictory roomId={roomId as string} />;
+    case "wolfWin":
+      return <WolfWin roomId={roomId as string} />;
+    case "villgersWin":
+      return <VillagersWin roomId={roomId as string} />;
+    case "ready": {
       return (
         <div>
           <h1>Room: {roomId}</h1>
@@ -103,7 +128,7 @@ export default function RoomPage() {
             </form>
           )}
 
-          {players.length >= 1 && !game.phase && (
+          {players.length >= 1 && (
             <button onClick={() => startGame({ roomId: roomId as string })}>
               スタート
             </button>
@@ -116,7 +141,38 @@ export default function RoomPage() {
               </button>
             </div>
           )}
+          {assigned && <p>役職を設定しました</p>}
+          {!assigned && <p>役職を設定してください</p>}
+          <p>Debug: 現在のフェーズは {game.phase ?? "未設定"} です</p>
         </div>
       );
+    }
+    case "notify": {
+      return (
+        <div>
+          <h1>あなたの役職は{currentPlayer?.role}です。</h1>
+          {!currentPlayer?.isCompleted ? (
+            <button
+              onClick={async () => {
+                if (!currentPlayer || !game) return;
+                await updatePlayerMoveComplete({
+                  playerId: currentPlayer._id,
+                  isCompleted: true,
+                });
+                await checkAllCompleted({
+                  roomId,
+                });
+              }}
+            >
+              確認完了
+            </button>
+          ) : (
+            <p>あなたは確認完了しています。</p>
+          )}
+        </div>
+      );
+    }
+    default:
+      return <div>ゲーム未開始</div>;
   }
 }

@@ -10,6 +10,10 @@ import Diviner from "./Diviner";
 import Medium from "./Medium";
 import Knight from "./Knight";
 import Wolf from "./Wolf";
+import DeadChat from "./DeadChat";
+import WolfChat from "./WolfChat";
+import NoActionRole from "./NoActionRole";
+import Dead from "./Dead";
 
 export default function NightPhase({ roomId }: { roomId: string }) {
   const togglePhase = useMutation(api.functions.game.togglePhase);
@@ -36,23 +40,16 @@ export default function NightPhase({ roomId }: { roomId: string }) {
 
   if (!game) return <div>Loading...</div>;
   if (!game.phase) return <div>ゲーム未開始</div>;
-
-  if (!isAlive) {
-    return (
-      <div>
-        <h1>夜だよ</h1>
-        <p>あなたは死亡しています。チャットを閲覧できます。</p>
-        <Chat roomId={roomId} phase="night" />
-        <button onClick={() => togglePhase({ roomId: roomId as string })}>
-          フェーズ切替
-        </button>
-      </div>
-    );
-  }
+  if (game.phase !== "night") return <div>夜フェーズではありません</div>;
+  if (!players) return <div>Loading players...</div>;
+  if (!alivePlayers) return <div>Loading alive players...</div>;
+  if (!user.user?.fullName) return <div>Loading user...</div>;
 
   // 役職に応じたアクションコンポーネントの表示
   let roleActionComponent = null;
-  if (playerRole === "占い師") {
+  if (!isAlive) {
+    roleActionComponent = <Dead roomId={roomId} />;
+  } else if (playerRole === "占い師") {
     roleActionComponent = <Diviner roomId={roomId} />;
   } else if (playerRole === "霊媒師") {
     roleActionComponent = <Medium roomId={roomId} />;
@@ -60,6 +57,8 @@ export default function NightPhase({ roomId }: { roomId: string }) {
     roleActionComponent = <Knight roomId={roomId} />;
   } else if (playerRole === "人狼") {
     roleActionComponent = <Wolf roomId={roomId} />;
+  } else {
+    roleActionComponent = <NoActionRole roomId={roomId} />;
   }
 
   return (
@@ -69,7 +68,6 @@ export default function NightPhase({ roomId }: { roomId: string }) {
       <button onClick={() => togglePhase({ roomId: roomId as string })}>
         フェーズ切替
       </button>
-      <Chat roomId={roomId} phase="night" />
     </div>
   );
 }

@@ -20,8 +20,8 @@ type Message = {
 
 export default function Chat({ roomId, phase }: ChatProps) {
   const [text, setText] = useState("");
-  const messages = useQuery(api.functions.messages.list, { roomId });
-  const sendMessage = useMutation(api.functions.messages.normalSend);
+  const messages = useQuery(api.functions.messages.wolfList, { roomId });
+  const sendMessage = useMutation(api.functions.messages.wolfSend);
   const { user } = useUser();
 
   if (!user) return <div>ログインしてください</div>;
@@ -40,7 +40,7 @@ export default function Chat({ roomId, phase }: ChatProps) {
 
   return (
     <div style={{ border: "1px solid #ccc", padding: 8, marginTop: 16 }}>
-      <h2>チャット ({phase})</h2>
+      <h2>人狼チャット </h2>
       <div style={{ maxHeight: 200, overflowY: "auto", marginBottom: 8 }}>
         {messages.map((m: Message) => (
           <div key={m._id} style={{ marginBottom: 4 }}>

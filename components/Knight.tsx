@@ -35,6 +35,10 @@ export default function Diviner({ roomId }: { roomId: string }) {
 
   const handleDefence = async () => {
     if (!selectedPlayer) return;
+    if (selectedPlayer === currentPlayer?.name) {
+      alert("自分自身を護衛することはできません");
+      return;
+    }
     await KnightAction({ roomId, targetName: selectedPlayer });
     await setHasDefenced(true);
     if (currentPlayer && currentPlayer._id) {
@@ -42,17 +46,6 @@ export default function Diviner({ roomId }: { roomId: string }) {
         playerId: currentPlayer._id,
         isCompleted: true,
       });
-    }
-    //行動完了チェック
-    if (players && alivePlayers && currentPlayer && game) {
-      const alivePlayerNames = alivePlayers.map((p) => p.name);
-      const completedPlayers = players.filter(
-        (p) => p.isCompleted && alivePlayerNames.includes(p.name)
-      );
-      if (completedPlayers.length === alivePlayers.length) {
-        // 全員が行動完了している場合、フェーズを進める
-        await togglePhase({ roomId });
-      }
     }
   };
 
@@ -82,7 +75,7 @@ export default function Diviner({ roomId }: { roomId: string }) {
             アクション完了
           </button>
         ) : (
-          <p>あなたは行動完了しています。</p>
+          <h3>あなたは行動完了しています。</h3>
         )}
       </div>
     );
@@ -109,8 +102,8 @@ export default function Diviner({ roomId }: { roomId: string }) {
           <br />
           <button
             onClick={async () => {
-              handleDefence();
-              checkAllCompleted({ roomId });
+              await handleDefence();
+              await checkAllCompleted({ roomId });
             }}
             disabled={!selectedPlayer || hasDefenced}
           >
@@ -118,7 +111,7 @@ export default function Diviner({ roomId }: { roomId: string }) {
           </button>
         </div>
       ) : (
-        <div>{hasDefenced && <p>護衛を行いました。</p>}</div>
+        <div>{hasDefenced && <h3>護衛を行いました。</h3>}</div>
       )}
     </div>
   );

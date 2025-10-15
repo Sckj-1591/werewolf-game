@@ -20,5 +20,5 @@ export default function Timer({ phase }: TimerProps) {
     setElapsed((prev) => prev + 1);
   }, 1000);
 
-  return <span>{elapsed}秒経過</span>;
+  return <h3>{elapsed}秒経過</h3>;
 }

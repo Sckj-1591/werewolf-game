@@ -42,6 +42,7 @@ export default defineSchema({
   attack: defineTable({
     roomId: v.string(),
     targetName: v.string(),
+    power: v.number(),
     defencedName: v.union(v.string(), v.null()),
   }),
 });

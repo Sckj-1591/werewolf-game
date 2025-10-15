@@ -36,6 +36,11 @@ export default function Diviner({ roomId }: { roomId: string }) {
   const handleDivine = async () => {
     if (!selectedPlayer) return;
 
+    if (selectedPlayer === currentPlayer?.name) {
+      alert("自分自身を占うことはできません");
+      return;
+    }
+
     try {
       const result = await divinerAction({
         roomId,
@@ -124,6 +129,7 @@ export default function Diviner({ roomId }: { roomId: string }) {
                 </option>
               ))}
             </select>
+            <br />
             <button
               onClick={async () => {
                 handleDivine();

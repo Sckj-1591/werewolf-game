@@ -129,6 +129,7 @@ export const KnightAction = mutation({
       await ctx.db.insert("attack", {
         roomId,
         targetName: "",
+        power: 0,
         defencedName: targetName,
       });
     }
@@ -139,8 +140,8 @@ export const KnightAction = mutation({
 
 // 人狼の夜行動処理
 export const WolfAction = mutation({
-  args: { roomId: v.string(), targetName: v.string() },
-  handler: async (ctx, { roomId, targetName }) => {
+  args: { roomId: v.string(), targetName: v.string(), power: v.number() },
+  handler: async (ctx, { roomId, targetName, power }) => {
     // ターゲットを取得
     const target = await ctx.db
       .query("players")
@@ -158,11 +159,13 @@ export const WolfAction = mutation({
       .filter((q) => q.eq(q.field("roomId"), roomId))
       .first();
     if (existing) {
-      await ctx.db.patch(existing._id, { targetName });
+      if (existing.power <= power)
+        await ctx.db.patch(existing._id, { targetName });
     } else {
       await ctx.db.insert("attack", {
         roomId,
         targetName,
+        power: power,
         defencedName: null,
       });
     }

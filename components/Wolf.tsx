@@ -28,12 +28,29 @@ export default function Wolf({ roomId }: { roomId: string }) {
   const [selectedPlayer, setSelectedPlayer] = React.useState<string>("");
   const [hasAttacked, setHasAttacked] = React.useState<boolean>(false);
 
+  //襲撃力を保存する変数
+  const [attackPower, setAttackPower] = React.useState<number>(1);
   // roomId, selectedPlayerを受け取り、role.tsのDivinerActionを呼び出す
   const WolfAction = useMutation(api.functions.role.WolfAction);
 
   const handleAttack = async () => {
     if (!selectedPlayer) return;
-    await WolfAction({ roomId, targetName: selectedPlayer });
+    const target = players?.find((p) => p.name === selectedPlayer);
+    if (!target) {
+      alert("プレイヤーが見つかりません");
+      return;
+    }
+
+    if (target.role === "人狼") {
+      alert("人狼は襲撃できません");
+      return;
+    }
+
+    await WolfAction({
+      roomId,
+      targetName: selectedPlayer,
+      power: attackPower,
+    });
     await alert(`${selectedPlayer}さんを襲撃しました`);
     await setHasAttacked(true);
     if (currentPlayer && currentPlayer._id) {
@@ -86,7 +103,10 @@ export default function Wolf({ roomId }: { roomId: string }) {
       <h2>人狼のアクション</h2>
       {!currentPlayer?.isCompleted ? (
         <div>
-          <p>襲撃するプレイヤーを選択してください。</p>
+          <p>
+            襲撃するプレイヤーを選択してください。
+            複数人人狼がいる場合は襲撃力の高い方が優先されます。
+          </p>
           <select
             value={selectedPlayer}
             onChange={(e) => setSelectedPlayer(e.target.value)}
@@ -99,6 +119,27 @@ export default function Wolf({ roomId }: { roomId: string }) {
               </option>
             ))}
           </select>
+          <input
+            type="number"
+            placeholder="襲撃力"
+            min={1}
+            max={10}
+            onChange={(e) => {
+              const value = parseInt(e.target.value, 10);
+              if (isNaN(value) || value < 1) {
+                alert("襲撃力は1以上の数字で入力してください");
+                return;
+              }
+              if (value > 10) {
+                alert("襲撃力は10以下の数字で入力してください");
+                return;
+              }
+              // 襲撃力を状態に保存
+              setAttackPower(value);
+            }}
+            value={attackPower}
+            style={{ width: 80, marginLeft: 8 }}
+          />
           <button
             onClick={async () => {
               await handleAttack();

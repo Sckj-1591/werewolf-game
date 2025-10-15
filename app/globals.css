@@ -14,13 +14,247 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
+    --background: hsl(0, 33%, 76%);
     --foreground: #ededed;
   }
 }
 
+header{
+  position:sticky;
+  top:0;
+  background-color: #0a0a0a;
+  color: rgb(241, 10, 10);
+  padding: 10px 0;
+  margin-bottom: 30px;
+}
+
 body {
-  background: var(--background);
+  background-color:hsl(0, 65%, 83%);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
+  text-align: center;
+}
+
+button {
+  background-color:#c20202;
+  border:hsl(0, 93%, 21%);
+  border-style:solid;
+  border-radius: 12px;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration:none;
+  display: inline-block;
+  font-size: 16px;
+  font-weight: bold;
+  margin: 10px 2px;
+  transition-duration: 0.4s;
+  cursor: pointer;
+}
+
+button:disabled {
+  background-color: grey;
+  border: grey;
+  cursor: not-allowed;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+h1{
+  font-size: 24px;
+  font-weight: bold;
+  margin: 16px 0;
+  background-color: #0a0a0a;
+  color: white;
+  padding: 8px 0;
+  border-radius: 12px;
+}
+
+h2{
+  font-size: 20px;
+  font-weight: bold;
+  margin: 16px 30px;
+  background-color: #d8b1c8;
+  color: black;
+  padding: 8px 0px;
+  border: 3px solid #171717;
+  border-radius: 12px;
+}
+
+h3{
+  font-size: 15px;
+  font-weight: bold;
+  margin: 16px 30px;
+  background-color: #f19c9c;
+  color: black;
+  padding: 8px 0px;
+  border: 3px solid #171717;
+  border-radius: 12px;
+}
+
+input {
+  padding: 8px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+  background-color: #f19c9c;
+  font-weight: bold;
+}
+
+select {
+  padding: 8px;
+  margin: 8px 0;
+  box-sizing: border-box;
+  border: 2px solid #000000;
+  border-radius: 4px;
+  font-size: 16px;
+  text-align: center;
+  outline: none;
+  transition: border-color 0.3s;
+  background-color: #f19c9c;
+  font-weight: bold;
+  position: relative; /* 矢印の位置調整のためにrelativeに設定 */
+  font-size:16px;
+  font-weight:bold;
+}
+
+select::after {
+  content: "▼"; /* 下向きの矢印を追加 */
+  position: absolute;
+  right: 10px;
+  pointer-events: none; /* 矢印がクリックされないようにする */
+  font-weight: bold;
+}
+
+select {
+  appearance: none; /* デフォルトのスタイルを削除 */
+  -webkit-appearance: none; /* Safari用 */
+  -moz-appearance: none; /* Firefox用 */
+}
+
+input:focus, select:focus {
+  border-color: #555;
+}
+
+
+/* classの設定 */
+
+.underline {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  font-weight: bold;
+}
+
+.app-header{
+  background-color: #5f0c44;
+  color: rgb(219, 20, 20);
+  padding: 10px 0;
+  margin-bottom: 20px;
+  font-weight: bold;
+  font-size:20px;
+  border-top: 6px solid #171717;
+  border-bottom: 6px solid #171717;
+}
+
+.player-list {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  list-style-type: none;
+  padding: 0;
+  margin: 10px 0;
+  font-weight: bold;
+  min-width: 20px;
+}
+
+.player-list li {
+  text-align: center;
+  padding: 8px;
+  margin: 4px 0;
+  border-bottom: 1px solid #ddd;
+  font-weight: bold;
+  background-color: #ffffff;
+  max-width: 500px;
+  min-width: 200px;
+  border-radius: 20px;
+}
+
+.player-list label {
+  display: grid;
+  grid-template-columns: 1fr 60px; /* 左: 役職名, 右: input */
+  gap: 8px;
+  align-items: center;
+  margin-right: 30px;
+}
+
+.player-list select {
+  padding: 8px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s;
+  background-color: #f19c9c;
+  font-weight: bold;
+}
+
+.player-list select:focus {
+  border-color: #555;
+}
+
+.Chat {
+  border: 1px solid #ccc;
+  padding: 8px;
+  margin-top: 16px;
+  max-width: 500px;
+  margin-left: 10px;
+  margin-right: 10px;
+  border-radius: 12px;
+  background-color: #cecaca;
+  border :#000000 2px solid
+}
+
+.messages {
+  max-height: 400px;
+  min-height: 200px;
+  overflow-y: auto;
+  margin-bottom: 8px;
+  border: 10px solid #b3acac;
+  padding: 8px;
+  border-radius: 12px;
+  background-color: #ffffff;
+  text-align: left;
+  color: black;
+  font-size: 18px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  line-height: 1.5;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+  text-transform: capitalize;
+  border:#000000 2px solid;
+}
+
+.Chat input {
+  width: calc(100% - 90px);
+  padding: 8px;
+  font-size: 16px;
+  border: 2px solid #ccc;
+  border-radius: 4px;
+  outline: none;
+  transition: border-color 0.3s;
+  margin-right: 8px;
+  text-align: left;
+  border:#000000 2px solid;
 }

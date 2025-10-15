@@ -4,6 +4,7 @@ import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import { ConvexReactClient } from "convex/react";
 import ConvexWrapper from "./ConvexWrapper";
+import Header from "@/components/Header";
 
 const geist = Geist({ subsets: ["latin"] });
 const geistMono = Geist_Mono({ subsets: ["latin"] });
@@ -23,7 +24,8 @@ export default function RootLayout({
       <ConvexWrapper>
         <html lang="en">
           <body className={`${geist.className} ${geistMono.className}`}>
-            {children}
+            <Header />
+            <main>{children}</main>
           </body>
         </html>
       </ConvexWrapper>

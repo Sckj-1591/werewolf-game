@@ -39,9 +39,9 @@ export default function Chat({ roomId, phase }: ChatProps) {
   if (!messages) return <div>Loading messages...</div>;
 
   return (
-    <div style={{ border: "1px solid #ccc", padding: 8, marginTop: 16 }}>
+    <div className="Chat">
       <h2>チャット ({phase})</h2>
-      <div style={{ maxHeight: 200, overflowY: "auto", marginBottom: 8 }}>
+      <div className="messages">
         {messages.map((m: Message) => (
           <div key={m._id} style={{ marginBottom: 4 }}>
             <strong>{m.author}:</strong> {m.text}

@@ -42,9 +42,13 @@ export default function MorningPhase({ roomId }: { roomId: string }) {
     return (
       <div>
         <h1>朝だよ</h1>
-        <p>初日 絶対死ぬ太郎さんが死体で発見されました。</p>
-        <p>生存者一覧:</p>
-        <ul>
+        <h3>
+          <span className="underline">初日 絶対死ぬ太郎さん</span>
+          <br />
+          が死体で発見されました。
+        </h3>
+        <h2>生存者一覧</h2>
+        <ul className="player-list">
           {alivePlayers?.map((player) => (
             <li key={player._id}>{player.name}</li>
           ))}
@@ -78,16 +82,19 @@ export default function MorningPhase({ roomId }: { roomId: string }) {
 
   return (
     <div>
-      <h1>朝だよ</h1>
+      <h1>朝</h1>
       {getAttack && getAttack.targetName !== getAttack.defencedName && (
-        <p>{getAttack.targetName}さんが死体で発見されました。</p>
+        <p>
+          <span className="underline">{getAttack.targetName}さん</span>
+          が死体で発見されました。
+        </p>
       )}
       {getAttack && getAttack.targetName === getAttack.defencedName && (
-        <p>犠牲者は出ませんでした。</p>
+        <p className="underline">犠牲者は出ませんでした。</p>
       )}
-      {!getAttack && <p>犠牲者は出ませんでした。</p>}
-      <p>生存者一覧:</p>
-      <ul>
+      {!getAttack && <p className="underline">犠牲者は出ませんでした。</p>}
+      <h3>生存者一覧</h3>
+      <ul className="player-list">
         {alivePlayers?.map((player) => (
           <li key={player._id}>{player.name}</li>
         ))}

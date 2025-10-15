@@ -7,7 +7,7 @@ import DayPhase from "@/components/DayPhase";
 import NightPhase from "@/components/NightPhase";
 import VotePhase from "@/components/VotePhase";
 import VoteResultPhase from "@/components/VoteResultPhase";
-import React from "react";
+import React, { useEffect } from "react";
 import MorningPhase from "@/components/MorningPhase";
 import CheckVictory from "@/components/CheckVictory";
 import WolfWin from "@/components/WolfWin";
@@ -45,6 +45,11 @@ export default function RoomPage() {
   const checkAllCompleted = useMutation(
     api.functions.game.checkAllCompletedAndAdvancePhase
   );
+
+  useEffect(() => {
+    //assignedをfalseにリセット
+    setAssigned(false);
+  }, [game?.phase]);
 
   const handleRoles = async ({
     roomId,
@@ -90,7 +95,7 @@ export default function RoomPage() {
         <div>
           <h1>Room: {roomId}</h1>
           <h2>Players</h2>
-          <ul>
+          <ul className="player-list">
             {players.map((p: Player) => (
               <li key={p._id}>{p.name}</li>
             ))}
@@ -110,26 +115,31 @@ export default function RoomPage() {
                 handleRoles({ roomId, rolesWithCounts: selectedRoles });
               }}
             >
-              {roles.map((role: { Name: string }) => (
-                <div key={role.Name}>
-                  <label>
-                    {role.Name}
-                    <input
-                      type="number"
-                      name={role.Name}
-                      min={0}
-                      defaultValue={0}
-                      style={{ width: 60, marginLeft: 8 }}
-                    />
-                  </label>
-                </div>
-              ))}
+              <ul className="player-list">
+                {roles.map((role: { Name: string }) => (
+                  <li key={role.Name}>
+                    <label>
+                      {role.Name}
+                      <input
+                        type="number"
+                        name={role.Name}
+                        min={0}
+                        defaultValue={0}
+                        style={{ width: 60, marginLeft: 8 }}
+                      />
+                    </label>
+                  </li>
+                ))}
+              </ul>
               <button type="submit">役職を設定</button>
             </form>
           )}
 
           {players.length >= 1 && (
-            <button onClick={() => startGame({ roomId: roomId as string })}>
+            <button
+              disabled={!assigned}
+              onClick={() => startGame({ roomId: roomId as string })}
+            >
               スタート
             </button>
           )}
@@ -169,6 +179,9 @@ export default function RoomPage() {
           ) : (
             <p>あなたは確認完了しています。</p>
           )}
+          <button onClick={() => togglePhase({ roomId: roomId as string })}>
+            フェーズ切替
+          </button>
         </div>
       );
     }

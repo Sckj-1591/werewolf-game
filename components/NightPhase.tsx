@@ -63,7 +63,7 @@ export default function NightPhase({ roomId }: { roomId: string }) {
 
   return (
     <div>
-      <h1>夜だよ</h1>
+      <h1>夜行動</h1>
       {roleActionComponent}
       <button onClick={() => togglePhase({ roomId: roomId as string })}>
         フェーズ切替

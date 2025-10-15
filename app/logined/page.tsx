@@ -37,10 +37,8 @@ export default function Home() {
   if (isSignedIn) {
     return (
       <div style={{ padding: 20 }}>
-        <h1 className="text-xl font-semibold">
-          ようこそ！{isSignedIn ? user?.fullName : "ゲスト"}さん
-        </h1>
-        <h1>人狼チャットへようこそ</h1>
+        <h2>ようこそ！{isSignedIn ? user?.fullName : "ゲスト"}さん</h2>
+        <h3>人狼 By BYOD へようこそ</h3>
         <input
           type="number"
           value={roomId}
@@ -48,6 +46,7 @@ export default function Home() {
           placeholder="Room IDを入力"
           style={{ marginRight: 8 }}
         />
+        <br />
         <button onClick={enterRoom}>入室</button>
         <br />
         <SignOutButton>

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { use, useEffect, useState } from "react";
 import { useMutation } from "convex/react";
 import { useAuth } from "@clerk/nextjs";
 import { api } from "@/convex/_generated/api";
@@ -23,16 +23,7 @@ export default function Home() {
     }
   }, [isSignedIn, router]);
 
-  const enterRoom = async () => {
-    if (roomId.trim()) {
-      await createGame({ roomId: roomId.trim() });
-      await addPlayer({
-        roomId: roomId.trim(),
-        name: user?.fullName || "名無し",
-      });
-      router.push(`/room/${roomId.trim()}`);
-    }
-  };
+  const enterRoom = useMutation(api.functions.game.createOrJoinGame);
 
   if (isSignedIn) {
     return (
@@ -47,7 +38,26 @@ export default function Home() {
           style={{ marginRight: 8 }}
         />
         <br />
-        <button onClick={enterRoom}>入室</button>
+        <button
+          onClick={async () => {
+            if (!roomId) {
+              alert("Room IDを入力してください");
+              return;
+            }
+            try {
+              await enterRoom({
+                roomId: roomId,
+                playerName: user?.fullName || "名無しの参加者",
+              });
+            } catch (error) {
+              alert("ゲームが進行中です。参加できません。");
+              return;
+            }
+            router.push(`/room/${roomId}`);
+          }}
+        >
+          ルームに参加
+        </button>
         <br />
         <SignOutButton>
           <button className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded">

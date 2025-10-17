@@ -38,8 +38,13 @@ export default function Dead({ roomId }: { roomId: string }) {
     <div>
       <h1>夜だよ</h1>
       <p>あなたは死亡しています。チャットを閲覧できます。</p>
-      <DeadChat roomId={roomId} phase="night" />
-      <button onClick={() => togglePhase({ roomId: roomId as string })}>
+      <div className="chat-center">
+        <DeadChat roomId={roomId} phase="night" />
+      </div>
+      <button
+        className="togglePhase"
+        onClick={() => togglePhase({ roomId: roomId as string })}
+      >
         フェーズ切替
       </button>
     </div>

@@ -121,7 +121,9 @@ export default function MorningPhase({ roomId }: { roomId: string }) {
         <p>あなたは行動完了しています。</p>
       )}
       <br />
-      <button onClick={() => togglePhase({ roomId })}>フェーズ切替</button>
+      <button className="togglePhase" onClick={() => togglePhase({ roomId })}>
+        フェーズ切替
+      </button>
     </div>
   );
 }

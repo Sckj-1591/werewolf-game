@@ -46,6 +46,11 @@ export default function Wolf({ roomId }: { roomId: string }) {
       return;
     }
 
+    if (attackPower <= 0) {
+      alert("襲撃力は1以上の数字で入力してください");
+      return;
+    }
+
     await WolfAction({
       roomId,
       targetName: selectedPlayer,
@@ -93,7 +98,9 @@ export default function Wolf({ roomId }: { roomId: string }) {
         ) : (
           <p>あなたは行動完了しています。</p>
         )}
-        <WolfChat roomId={roomId} phase="night" />
+        <div className="chat-center">
+          <WolfChat roomId={roomId} phase="night" />
+        </div>
       </div>
     );
   }
@@ -122,11 +129,11 @@ export default function Wolf({ roomId }: { roomId: string }) {
           <input
             type="number"
             placeholder="襲撃力"
-            min={1}
+            min={0}
             max={10}
             onChange={(e) => {
               const value = parseInt(e.target.value, 10);
-              if (isNaN(value) || value < 1) {
+              if (value < 0) {
                 alert("襲撃力は1以上の数字で入力してください");
                 return;
               }
@@ -155,7 +162,9 @@ export default function Wolf({ roomId }: { roomId: string }) {
       ) : (
         <div>{hasAttacked && <p>襲撃を行いました。</p>}</div>
       )}
-      <WolfChat roomId={roomId} phase="night" />
+      <div className="chat-center">
+        <WolfChat roomId={roomId} phase="night" />
+      </div>
     </div>
   );
 }

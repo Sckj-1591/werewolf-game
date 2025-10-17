@@ -73,7 +73,6 @@ export default function VotePhase({ roomId }: { roomId: string }) {
   return (
     <div>
       <h1>投票</h1>
-      <button onClick={() => togglePhase({ roomId })}>フェーズ切替</button>
       {!currentPlayer?.isCompleted ? (
         <div>
           <label htmlFor="player-select">プレイヤーを選択 </label>
@@ -108,7 +107,10 @@ export default function VotePhase({ roomId }: { roomId: string }) {
       ) : (
         <div> {<p>あなたは行動完了しています。</p>}</div>
       )}
-      <button onClick={() => togglePhaseMutation({ roomId })}>
+      <button
+        className="togglePhase"
+        onClick={() => togglePhaseMutation({ roomId })}
+      >
         フェーズ切替
       </button>
     </div>

@@ -27,6 +27,54 @@ export const join = mutation({
   },
 });
 
+//部屋作成または入室処理
+export const createOrJoinGame = mutation({
+  args: { roomId: v.string(), playerName: v.string() },
+  handler: async (ctx, { roomId, playerName }) => {
+    // すでにゲームが存在するか確認
+    const game = await ctx.db
+      .query("games")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .first();
+    if (!game) {
+      // ゲームが存在しない場合は作成
+      await ctx.db.insert("games", {
+        roomId,
+        phase: "ready",
+        day: 0,
+        createdAt: Date.now(),
+        executedName: null,
+      });
+    }
+
+    // ゲームのフェーズがready以外の場合、参加を拒否
+    if (game && game.phase !== "ready") {
+      throw new Error();
+    }
+    // プレイヤーを追加
+    // 重複参加を防ぐため、同じ名前のプレイヤーがいないか確認
+    const existingPlayer = await ctx.db
+      .query("players")
+      .filter((q) =>
+        q.and(
+          q.eq(q.field("roomId"), roomId),
+          q.eq(q.field("name"), playerName)
+        )
+      )
+      .first();
+    if (!existingPlayer) {
+      await ctx.db.insert("players", {
+        roomId,
+        name: playerName,
+        joinedAt: Date.now(),
+        alive: true,
+        role: null,
+        isCompleted: false,
+      });
+    }
+  },
+});
+
 //部屋作成
 export const createGame = mutation({
   args: { roomId: v.string() },

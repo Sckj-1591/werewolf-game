@@ -13,6 +13,7 @@ import CheckVictory from "@/components/CheckVictory";
 import WolfWin from "@/components/WolfWin";
 import VillagersWin from "@/components/VillagersWin";
 import { useUser } from "@clerk/nextjs";
+import { useRouter } from "next/navigation";
 
 type Player = {
   _id: string;
@@ -20,6 +21,7 @@ type Player = {
 };
 
 export default function RoomPage() {
+  const router = useRouter();
   const { roomId } = useParams<{ roomId: string }>();
   const game = useQuery(api.functions.game.getGame, {
     roomId: roomId as string,
@@ -38,7 +40,7 @@ export default function RoomPage() {
     name: user.user?.fullName || "",
   });
   const current = currentPlayer ? currentPlayer.role : "";
-
+  const removePlayer = useMutation(api.functions.players.removePlayer);
   const updatePlayerMoveComplete = useMutation(
     api.functions.players.updatePlayerMoveComplete
   );
@@ -50,6 +52,19 @@ export default function RoomPage() {
     //assignedをfalseにリセット
     setAssigned(false);
   }, [game?.phase]);
+
+  const exitGame = async () => {
+    if (!currentPlayer) {
+      await router.push("/logined");
+    } else {
+      await removePlayer({
+        playerName: currentPlayer.name,
+        roomId: roomId as string,
+      });
+      alert("ゲームから退出しました");
+      await router.push("/logined");
+    }
+  };
 
   const handleRoles = async ({
     roomId,
@@ -144,13 +159,13 @@ export default function RoomPage() {
             </button>
           )}
 
-          {game.phase && (
-            <div>
-              <button onClick={() => togglePhase({ roomId: roomId as string })}>
-                フェーズ切替
-              </button>
-            </div>
-          )}
+          <div>
+            <button onClick={() => togglePhase({ roomId: roomId as string })}>
+              フェーズ切替
+            </button>
+            <br />
+            <button onClick={exitGame}>ゲームから退出</button>
+          </div>
           {assigned && <p>役職を設定しました</p>}
           {!assigned && <p>役職を設定してください</p>}
           <p>Debug: 現在のフェーズは {game.phase ?? "未設定"} です</p>
@@ -179,7 +194,10 @@ export default function RoomPage() {
           ) : (
             <p>あなたは確認完了しています。</p>
           )}
-          <button onClick={() => togglePhase({ roomId: roomId as string })}>
+          <button
+            className="togglePhase"
+            onClick={() => togglePhase({ roomId: roomId as string })}
+          >
             フェーズ切替
           </button>
         </div>

@@ -13,7 +13,10 @@ export default function CheckVictory({ roomId }: { roomId: string }) {
   return (
     <div>
       Loading...
-      <button onClick={() => togglePhase({ roomId: roomId as string })}>
+      <button
+        className="togglePhase"
+        onClick={() => togglePhase({ roomId: roomId as string })}
+      >
         フェーズ切替
       </button>
     </div>

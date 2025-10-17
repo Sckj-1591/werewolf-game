@@ -25,6 +25,9 @@ export default function Diviner({ roomId }: { roomId: string }) {
   const checkAllCompleted = useMutation(
     api.functions.game.checkAllCompletedAndAdvancePhase
   );
+  const getWhitePlayerRandomly = useMutation(
+    api.functions.role.DivinerRandomWhite
+  );
 
   // プルダウン式で占うプレイヤーを選択
   const [selectedPlayer, setSelectedPlayer] = React.useState<string>("");
@@ -32,6 +35,18 @@ export default function Diviner({ roomId }: { roomId: string }) {
 
   // roomId, selectedPlayerを受け取り、role.tsのDivinerActionを呼び出す
   const divinerAction = useMutation(api.functions.role.DivinerAction);
+
+  const handleDivineFirstDay = async () => {
+    try {
+      const result = await getWhitePlayerRandomly({ roomId });
+      const targetName = result.targetName;
+      alert(`${targetName}さんは人間です`);
+      await setHasDivined(true);
+    } catch (err) {
+      console.error(err);
+      alert("占いに失敗しました");
+    }
+  };
 
   const handleDivine = async () => {
     if (!selectedPlayer) return;
@@ -85,12 +100,13 @@ export default function Diviner({ roomId }: { roomId: string }) {
       <div>
         <div>
           <h2>占い師のアクション</h2>
-          <p>初日は占いできません。</p>
+          <p>初日はランダムで人間のプレイヤーが選ばれます</p>
         </div>
         {!currentPlayer?.isCompleted ? (
           <button
             onClick={async () => {
               if (!currentPlayer || !game) return;
+              await handleDivineFirstDay();
               await updatePlayerMoveComplete({
                 playerId: currentPlayer._id,
                 isCompleted: true,
@@ -100,7 +116,7 @@ export default function Diviner({ roomId }: { roomId: string }) {
               });
             }}
           >
-            アクション完了
+            占う
           </button>
         ) : (
           <p>あなたは行動完了しています。</p>

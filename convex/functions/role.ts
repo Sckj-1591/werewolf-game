@@ -78,6 +78,36 @@ export const DivinerAction = mutation({
   },
 });
 
+//占い師 ランダムで白通知
+export const DivinerRandomWhite = mutation({
+  args: { roomId: v.string() },
+  handler: async (ctx, { roomId }) => {
+    // roomIdのプレイヤー一覧を取得
+    const players = await ctx.db
+      .query("players")
+      .filter((q) => q.eq(q.field("roomId"), roomId))
+      .collect();
+    if (players.length === 0) throw new Error("プレイヤーが見つかりません");
+
+    //プレイヤー一覧から、roleが人狼または占い師でないプレイヤーをランダムで一人抽出
+    const nonWolves = [];
+    for (const player of players) {
+      const role = await ctx.db
+        .query("roles")
+        .filter((q) => q.eq(q.field("Name"), player.role))
+        .first();
+      if (role && role.Name !== "人狼" && role.Name !== "占い師") {
+        nonWolves.push(player);
+      }
+    }
+    if (nonWolves.length === 0)
+      throw new Error("白通知可能なプレイヤーが見つかりません");
+    const randomIndex = Math.floor(Math.random() * nonWolves.length);
+    const selectedPlayer = nonWolves[randomIndex];
+    return { targetName: selectedPlayer.name };
+  },
+});
+
 //霊媒師の夜行動処理
 export const MediumAction = mutation({
   args: { roomId: v.string(), targetName: v.string() },

@@ -58,16 +58,12 @@ export default function DayPhase({ roomId }: { roomId: string }) {
     return (
       <div>
         <h1>昼だよ</h1>
-        <button onClick={() => togglePhase({ roomId: roomId as string })}>
-          フェーズ切替
-        </button>
-        <br />
-        <button onClick={exitGame}>退出</button>
-
         <div>
-          <p>議論しよう！</p>
+          <h3>議論しよう！</h3>
         </div>
-        <Chat roomId={roomId} phase="day" />
+        <div className="chat-center">
+          <Chat roomId={roomId} phase="day" />
+        </div>
         <Timer phase="day" />
         <br />
         <button onClick={() => togglePhase({ roomId: roomId as string })}>

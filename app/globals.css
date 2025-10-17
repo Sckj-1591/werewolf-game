@@ -26,6 +26,12 @@ header{
   color: rgb(241, 10, 10);
   padding: 10px 0;
   margin-bottom: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 60px;
+  border-top: 6px solid #171717;
+  border-bottom: 6px solid #171717;
 }
 
 body {
@@ -33,6 +39,7 @@ body {
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
   text-align: center;
+  align-items: center;
 }
 
 button {
@@ -148,8 +155,53 @@ input:focus, select:focus {
   border-color: #555;
 }
 
+label {
+  font-weight: bold;
+  margin-right: 10px;
+  background-color: rgb(235, 171, 213);
+  padding: 4px 8px;
+  margin: 8px;
+  border-radius: 8px;
+  border: 2px solid #000000;
+  font-size:16px;
+  font-weight:bold;
+  text-align: center;
+}
+
 
 /* classの設定 */
+
+.togglePhase {
+  background-color: #b8b8b8; /* 緑色 */
+  border: none;
+  color: white;
+  padding: 10px 24px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 16px;
+  margin: 10px 2px;
+  cursor: pointer;
+  border-radius: 12px;
+  font-weight: bold;
+  border: #000000 2px solid;
+}
+
+.header-center {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  padding-top:0px;
+}
+
+.header-right {
+  margin-left: auto;
+  margin-right: 10px;
+  font-weight: bold;
+  font-size: 10px;
+  color: white;
+  padding-top: 30px;
+}
 
 .underline {
   text-decoration: underline;
@@ -214,11 +266,18 @@ input:focus, select:focus {
   border-color: #555;
 }
 
+.chat-center {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 20px;
+}
+
 .Chat {
   border: 1px solid #ccc;
   padding: 8px;
   margin-top: 16px;
-  max-width: 500px;
+  width: 80%;
   margin-left: 10px;
   margin-right: 10px;
   border-radius: 12px;
